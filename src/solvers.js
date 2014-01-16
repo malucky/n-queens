@@ -86,9 +86,11 @@ window.countNRooksSolutions = function(n){
   var solutions = [];
   var newBoard = makeNewBoard(n);
 
-  var countNRooksSolutionsHelper = function(board, counter){
+  var countNRooksSolutionsHelper = function(board, counter, rowIndex){
     debugger;
-    for (var i = 0; i < n; i++) {
+    var i = rowIndex;
+
+    // for (var i = 0; i < n; i++) {
       for (var j = 0; j < n; j++) {
         //place rook
         if (board.get(i)[j] === 0) {
@@ -103,19 +105,27 @@ window.countNRooksSolutions = function(n){
               board.get(i)[j] = 0;
               counter--;
             } else { //more rooks to add
-              countNRooksSolutionsHelper(board, counter);
+              countNRooksSolutionsHelper(board, counter, rowIndex +1);
               board.get(i)[j] = 0;
               counter--;
             }
           }
+        } else {
+          j = n; //go to next row
         }
       }
-    }
+    // }
   };
-  countNRooksSolutionsHelper(newBoard, 0);
+  // if (n === 1) {return 1;};
+  // if (n===2) {return 2;};
 
+  // for (var i = 0; i < n; i++) {
+  //   newBoard.get(0)[i] = 1;
+  countNRooksSolutionsHelper(newBoard, 0, 0);
+  //   newBoard.get(0)[i] = 0;
+  // }
+  //countNRooksSolutionsHelper(newBoard, 0);
   solutionCount = _.unique(solutions).length;
-  debugger;
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
 };
