@@ -16,7 +16,6 @@ window.count = 0;
 window.combos = {};
 
 window.findNRooksSolution = function(n){
-  debugger;
   var solution = undefined; //fixme
   var newBoard = makeNewBoard(n);
 
@@ -87,10 +86,38 @@ window.countNRooksSolutions = function(n){
   var solutions = [];
   var newBoard = makeNewBoard(n);
 
+  var countNRooksSolutionsHelper = function(board, counter){
+    debugger;
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < n; j++) {
+        //place rook
+        if (board.get(i)[j] === 0) {
+          board.get(i)[j] = 1;
+          //if check failed
+          if (board.hasAnyRooksConflicts()) {
+            board.get(i)[j] = 0;
+          } else { //successfully added roook
+            counter++;
+            if(counter === n){ //if this is the last rook to add
+              solutions.push(JSON.stringify(board._currentAttributes));
+              board.get(i)[j] = 0;
+              counter--;
+            } else { //more rooks to add
+              countNRooksSolutionsHelper(board, counter);
+              board.get(i)[j] = 0;
+              counter--;
+            }
+          }
+        }
+      }
+    }
+  };
+  countNRooksSolutionsHelper(newBoard, 0);
+
+  solutionCount = _.unique(solutions).length;
   debugger;
-  findNRooksSolution(n, newBoard, 0);
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  return window.count;
+  return solutionCount;
 };
 
 window.makeNewBoard = function(n){
