@@ -144,7 +144,7 @@
       var counter = 0;
 
       for (var i = 0; i < size; i++) {
-        if(indexInTheRow > 0){
+        if(indexInTheRow >= 0){
           if(this.get(i)[indexInTheRow]){
             counter++;
           }

@@ -78,7 +78,7 @@ window.makeNewBoard = function(n){
     }
   }
   return new Board(matrix);
-}
+};
 
 
 
@@ -107,49 +107,37 @@ window.findNQueensSolution = function(n){
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n){
+
   var solutionsCount = 0;
-  var solutions = [];
-  var options = makeNewBoard(n);//[];
+  var board = new Board({n:n});
 
-  // for (var i = 0; i < n; i++) {
-  //   options.push(i);
-  // }
-
-  var innerFunction = function(history, count, choiceBoard){
-    if (count < n){
-      var choiceRowIndices = findChoiceRowIndices(choiceBoard, count);
-      count++;
-      for (var i = 0; i < choiceRowIndices.length; i++) {
-        var newArr = [];
-        for (var j = 0; j < n; j++) {
-          newArr.push(choiceBoard.get(j));
+  var innerFunction = function(row){
+    if (row < n){
+      var choiceRow = board.rows()[row];
+      for (var i = 0; i < choiceRow.length; i++) {
+        board.togglePiece(row, i);
+        if (!board.hasColConflictAt(i) && !board.hasMajorDiagonalConflictAt(i-row) && !board.hasMinorDiagonalConflictAt(i+row)) {
+          innerFunction(row + 1);
         }
-        var limitedChoiceBoard = new Board(newArr); //choiceBoard.slice();
-        var newHistory = history.slice();
-        newHistory.push( choiceRowIndices[i] );
-        var limitedChoiceBoard = markAvailability(limitedChoiceBoard, count, choiceRowIndices[i]);
-        innerFunction(newHistory, count, limitedChoiceBoard);
+        board.togglePiece(row, i);
       };
-    }
-    else if (history.length === n) {
+    } else {
       solutionsCount++;
-      solutions.push(history);
     }
   };
 
-  innerFunction([],0,options);
-  console.log(solutionsCount);
+  innerFunction(0);
   return solutionsCount;
 };
 
-window.markAvailability = function(board, row, index){
+window.unmarkAvailability = function(board, row, index){
   var size = board.get('n');
 
   var markColumns = function(){
 
     for (var i = row; i < size; i++) {
       var newRow = board.get(i).slice(); 
-      newRow[index] = 1;
+      newRow[index]--;
       board.set(i, newRow);
     };
   };
@@ -162,10 +150,44 @@ window.markAvailability = function(board, row, index){
       minorIndex--;
       var newRow = board.get(i).slice(); 
       if(minorIndex >= 0){
-       newRow[minorIndex] = 1;
+       newRow[minorIndex]--;
       }
       if(majorIndex < size){
-        newRow[majorIndex] = 1;
+        newRow[majorIndex]--;
+      }
+      board.set(i, newRow);
+    }
+  };
+
+  markColumns();
+  markDiagonals();
+  return board;
+};
+
+window.markAvailability = function(board, row, index){
+  var size = board.get('n');
+
+  var markColumns = function(){
+
+    for (var i = row; i < size; i++) {
+      var newRow = board.get(i).slice(); 
+      newRow[index]++;
+      board.set(i, newRow);
+    };
+  };
+  var markDiagonals = function(){
+    var majorIndex = index;
+    var minorIndex = index;
+
+    for (var i = row; i < size; i++) {
+      majorIndex++;
+      minorIndex--;
+      var newRow = board.get(i).slice(); 
+      if(minorIndex >= 0){
+       newRow[minorIndex]++;
+      }
+      if(majorIndex < size){
+        newRow[majorIndex]++;
       }
       board.set(i, newRow);
     }
