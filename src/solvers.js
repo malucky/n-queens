@@ -107,152 +107,192 @@ window.findNQueensSolution = function(n){
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n){
+  var start = new Date();
 
   var solutionsCount = 0;
-  var board = new Board({n:n});
+  //var board = new Board({n:n});
+  var board = new Int8Array(n*n);
 
   var innerFunction = function(row){
     if (row < n){
-      var choiceRow = board.rows()[row];
+      var choiceRow = board.subarray(row * n, (row+1) * n) //rows()[row];
       for (var i = 0; i < choiceRow.length; i++) {
-        board.togglePiece(row, i);
-        if (!board.hasColConflictAt(i) && !board.hasMajorDiagonalConflictAt(i-row) && !board.hasMinorDiagonalConflictAt(i+row)) {
+        choiceRow[i] = 1; //board.togglePiece(row, i);
+        if ( !queensConflict(board, row*n+i, n, row) ) {  //.hasColConflictAt(i) && !board.hasMajorDiagonalConflictAt(i-row) && !board.hasMinorDiagonalConflictAt(i+row)) {
           innerFunction(row + 1);
         }
-        board.togglePiece(row, i);
-      };
-    } else {
+        choiceRow[i] = 0;//board.togglePiece(row, i);
+      }
+    } else {//if (count === n) {
       solutionsCount++;
+      // console.log(solutionsCount);
     }
   };
+
+  var queensConflict = function(buffer, i, n, row) {
+
+    var indexToCheck = i - n;
+    var count = 1;
+    var row = row - 1;
+    while (indexToCheck > -1){
+      if ((indexToCheck-count) >= (n * row) && buffer[indexToCheck-count]) {
+        return true;
+      }
+      if ((indexToCheck+count) < ((row+1)*n) && buffer[indexToCheck+count] ) {
+        return true;
+      }
+      if (buffer[indexToCheck]) {
+        return true;
+      }
+      indexToCheck = indexToCheck - n;
+      count = count + 1;
+      row = row - 1;
+    }
+    return false;
+  };
+
+
+
 
   innerFunction(0);
+  var finish = new Date();
+  console.log(finish - start);
   return solutionsCount;
 };
+// window.queensConflict = function(buffer, i, n) {
+//   var indexToCheck = i - n;
+//   var count = 1;
+//   while (indexToCheck > -1){
+//     if (buffer[indexToCheck-count] || buffer[indexToCheck+count] || buffer[indexToCheck]) {
+//       return true;
+//     }
+//     indexToCheck = indexToCheck - n;
+//     count = count + 1;
+//   }
+//   return false;
+// };
 
-window.unmarkAvailability = function(board, row, index){
-  var size = board.get('n');
+// window.unmarkAvailability = function(board, row, index){
+//   var size = board.get('n');
 
-  var markColumns = function(){
+//   var markColumns = function(){
 
-    for (var i = row; i < size; i++) {
-      var newRow = board.get(i).slice(); 
-      newRow[index]--;
-      board.set(i, newRow);
-    };
-  };
-  var markDiagonals = function(){
-    var majorIndex = index;
-    var minorIndex = index;
+//     for (var i = row; i < size; i++) {
+//       var newRow = board.get(i).slice(); 
+//       newRow[index]--;
+//       board.set(i, newRow);
+//     };
+//   };
+//   var markDiagonals = function(){
+//     var majorIndex = index;
+//     var minorIndex = index;
 
-    for (var i = row; i < size; i++) {
-      majorIndex++;
-      minorIndex--;
-      var newRow = board.get(i).slice(); 
-      if(minorIndex >= 0){
-       newRow[minorIndex]--;
-      }
-      if(majorIndex < size){
-        newRow[majorIndex]--;
-      }
-      board.set(i, newRow);
-    }
-  };
+//     for (var i = row; i < size; i++) {
+//       majorIndex++;
+//       minorIndex--;
+//       var newRow = board.get(i).slice(); 
+//       if(minorIndex >= 0){
+//        newRow[minorIndex]--;
+//       }
+//       if(majorIndex < size){
+//         newRow[majorIndex]--;
+//       }
+//       board.set(i, newRow);
+//     }
+//   };
 
-  markColumns();
-  markDiagonals();
-  return board;
-};
+//   markColumns();
+//   markDiagonals();
+//   return board;
+// };
 
-window.markAvailability = function(board, row, index){
-  var size = board.get('n');
+// window.markAvailability = function(board, row, index){
+//   var size = board.get('n');
 
-  var markColumns = function(){
+//   var markColumns = function(){
 
-    for (var i = row; i < size; i++) {
-      var newRow = board.get(i).slice(); 
-      newRow[index]++;
-      board.set(i, newRow);
-    };
-  };
-  var markDiagonals = function(){
-    var majorIndex = index;
-    var minorIndex = index;
+//     for (var i = row; i < size; i++) {
+//       var newRow = board.get(i).slice(); 
+//       newRow[index]++;
+//       board.set(i, newRow);
+//     };
+//   };
+//   var markDiagonals = function(){
+//     var majorIndex = index;
+//     var minorIndex = index;
 
-    for (var i = row; i < size; i++) {
-      majorIndex++;
-      minorIndex--;
-      var newRow = board.get(i).slice(); 
-      if(minorIndex >= 0){
-       newRow[minorIndex]++;
-      }
-      if(majorIndex < size){
-        newRow[majorIndex]++;
-      }
-      board.set(i, newRow);
-    }
-  };
+//     for (var i = row; i < size; i++) {
+//       majorIndex++;
+//       minorIndex--;
+//       var newRow = board.get(i).slice(); 
+//       if(minorIndex >= 0){
+//        newRow[minorIndex]++;
+//       }
+//       if(majorIndex < size){
+//         newRow[majorIndex]++;
+//       }
+//       board.set(i, newRow);
+//     }
+//   };
 
-  markColumns();
-  markDiagonals();
-  return board;
-};
-
-
-window.findChoiceRowIndices = function(choiceBoard, count) {
-  var array = [];
-  for (var i = 0; i < choiceBoard.get('n'); i++) {
-    if (choiceBoard.get(count)[i] === 0) {
-      array.push(i);
-    }
-  }
-  return array;
-};
-  // var solutionCount = undefined; //fixme
-  // var solutions = [];
-  // var newBoard = makeNewBoard(n);
-  // if (n === 0) return 0;
-  // var countNQueensSolutionsHelper = function(board, counter, rowIndex){
-  //   debugger;
-  //   var i = rowIndex;
-
-  //   // for (var i = 0; i < n; i++) {
-  //     for (var j = 0; j < n; j++) {
-  //       //place rook
-  //       if (board.get(i)[j] === 0) {
-  //         board.get(i)[j] = 1;
-  //         //if check failed
-  //         if (board.hasAnyQueensConflicts(j)) {
-  //           board.get(i)[j] = 0;
-  //         } else { //successfully added roook
-  //           counter++;
-  //           if(counter === n){ //if this is the last rook to add
-  //             solutions.push(JSON.stringify(board._currentAttributes));
-  //             board.get(i)[j] = 0;
-  //             counter--;
-  //           } else { //more rooks to add
-  //             countNQueensSolutionsHelper(board, counter, rowIndex +1);
-  //             board.get(i)[j] = 0;
-  //             counter--;
-  //           }
-  //         }
-  //       } else {
-  //         j = n; //go to next row
-  //       }
-  //     }
-  //   // }
-  // };
-
-  // countNQueensSolutionsHelper(newBoard, 0, 0);
-  // //   newBoard.get(0)[i] = 0;
-  // // }
-  // //countNRooksSolutionsHelper(newBoard, 0);
-  // solutionCount = _.unique(solutions).length;
-  // console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  // return solutionCount;
+//   markColumns();
+//   markDiagonals();
+//   return board;
 // };
 
 
+// window.findChoiceRowIndices = function(choiceBoard, count) {
+//   var array = [];
+//   for (var i = 0; i < choiceBoard.get('n'); i++) {
+//     if (choiceBoard.get(count)[i] === 0) {
+//       array.push(i);
+//     }
+//   }
+//   return array;
+// };
+//   // var solutionCount = undefined; //fixme
+//   // var solutions = [];
+//   // var newBoard = makeNewBoard(n);
+//   // if (n === 0) return 0;
+//   // var countNQueensSolutionsHelper = function(board, counter, rowIndex){
+//   //   debugger;
+//   //   var i = rowIndex;
+
+//   //   // for (var i = 0; i < n; i++) {
+//   //     for (var j = 0; j < n; j++) {
+//   //       //place rook
+//   //       if (board.get(i)[j] === 0) {
+//   //         board.get(i)[j] = 1;
+//   //         //if check failed
+//   //         if (board.hasAnyQueensConflicts(j)) {
+//   //           board.get(i)[j] = 0;
+//   //         } else { //successfully added roook
+//   //           counter++;
+//   //           if(counter === n){ //if this is the last rook to add
+//   //             solutions.push(JSON.stringify(board._currentAttributes));
+//   //             board.get(i)[j] = 0;
+//   //             counter--;
+//   //           } else { //more rooks to add
+//   //             countNQueensSolutionsHelper(board, counter, rowIndex +1);
+//   //             board.get(i)[j] = 0;
+//   //             counter--;
+//   //           }
+//   //         }
+//   //       } else {
+//   //         j = n; //go to next row
+//   //       }
+//   //     }
+//   //   // }
+//   // };
+
+//   // countNQueensSolutionsHelper(newBoard, 0, 0);
+//   // //   newBoard.get(0)[i] = 0;
+//   // // }
+//   // //countNRooksSolutionsHelper(newBoard, 0);
+//   // solutionCount = _.unique(solutions).length;
+//   // console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+//   // return solutionCount;
+// // };
 
 
 
@@ -265,49 +305,51 @@ window.findChoiceRowIndices = function(choiceBoard, count) {
 
 
 
-  // var solutionCount = undefined; //fixme
-  // var solutions = [];
-  // var newBoard = makeNewBoard(n);
 
-  // var countNRooksSolutionsHelper = function(board, counter, rowIndex){
-  //   debugger;
-  //   var i = rowIndex;
 
-  //   // for (var i = 0; i < n; i++) {
-  //     for (var j = 0; j < n; j++) {
-  //       //place rook
-  //       if (board.get(i)[j] === 0) {
-  //         board.get(i)[j] = 1;
-  //         //if check failed
-  //         if (board.hasAnyColConflicts(j)) {
-  //           board.get(i)[j] = 0;
-  //         } else { //successfully added roook
-  //           counter++;
-  //           if(counter === n){ //if this is the last rook to add
-  //             solutions.push(JSON.stringify(board._currentAttributes));
-  //             board.get(i)[j] = 0;
-  //             counter--;
-  //           } else { //more rooks to add
-  //             countNRooksSolutionsHelper(board, counter, rowIndex +1);
-  //             board.get(i)[j] = 0;
-  //             counter--;
-  //           }
-  //         }
-  //       } else {
-  //         j = n; //go to next row
-  //       }
-  //     }
-  //   // }
-  // };
-  // // if (n === 1) {return 1;};
-  // // if (n===2) {return 2;};
+//   // var solutionCount = undefined; //fixme
+//   // var solutions = [];
+//   // var newBoard = makeNewBoard(n);
 
-  // // for (var i = 0; i < n; i++) {
-  // //   newBoard.get(0)[i] = 1;
-  // countNRooksSolutionsHelper(newBoard, 0, 0);
-  // //   newBoard.get(0)[i] = 0;
-  // // }
-  // //countNRooksSolutionsHelper(newBoard, 0);
-  // solutionCount = _.unique(solutions).length;
-  // console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  // return solutionCount;
+//   // var countNRooksSolutionsHelper = function(board, counter, rowIndex){
+//   //   debugger;
+//   //   var i = rowIndex;
+
+//   //   // for (var i = 0; i < n; i++) {
+//   //     for (var j = 0; j < n; j++) {
+//   //       //place rook
+//   //       if (board.get(i)[j] === 0) {
+//   //         board.get(i)[j] = 1;
+//   //         //if check failed
+//   //         if (board.hasAnyColConflicts(j)) {
+//   //           board.get(i)[j] = 0;
+//   //         } else { //successfully added roook
+//   //           counter++;
+//   //           if(counter === n){ //if this is the last rook to add
+//   //             solutions.push(JSON.stringify(board._currentAttributes));
+//   //             board.get(i)[j] = 0;
+//   //             counter--;
+//   //           } else { //more rooks to add
+//   //             countNRooksSolutionsHelper(board, counter, rowIndex +1);
+//   //             board.get(i)[j] = 0;
+//   //             counter--;
+//   //           }
+//   //         }
+//   //       } else {
+//   //         j = n; //go to next row
+//   //       }
+//   //     }
+//   //   // }
+//   // };
+//   // // if (n === 1) {return 1;};
+//   // // if (n===2) {return 2;};
+
+//   // // for (var i = 0; i < n; i++) {
+//   // //   newBoard.get(0)[i] = 1;
+//   // countNRooksSolutionsHelper(newBoard, 0, 0);
+//   // //   newBoard.get(0)[i] = 0;
+//   // // }
+//   // //countNRooksSolutionsHelper(newBoard, 0);
+//   // solutionCount = _.unique(solutions).length;
+//   // console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
+//   // return solutionCount;
